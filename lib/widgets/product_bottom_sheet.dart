@@ -1,10 +1,9 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:my_app/model/new_product_model.dart';
 import 'package:my_app/model/product_cart_model.dart';
 import 'package:my_app/provider/product_provider.dart';
 import 'package:provider/provider.dart';
-
-
 
 class ProductBottomSheet extends StatelessWidget {
   final NewProductModel product;
@@ -58,20 +57,33 @@ class ProductBottomSheet extends StatelessWidget {
                     borderRadius: BorderRadius.circular(24),
                     child: AspectRatio(
                       aspectRatio: 1.2,
-                      child: Image.network(
-                        product.images[0],
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: const Color(0xFFF1F3F5),
-                            alignment: Alignment.center,
-                            child: const Icon(
-                              Icons.image_not_supported_outlined,
-                              color: Colors.black38,
-                              size: 36,
-                            ),
+                      child: CarouselSlider.builder(
+                        itemCount: product.images.length,
+                        itemBuilder: (context, index, realIndex) {
+                          return Image.network(
+                            product.images[index],
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: const Color(0xFFF1F3F5),
+                                alignment: Alignment.center,
+                                child: const Icon(
+                                  Icons.image_not_supported_outlined,
+                                  color: Colors.black38,
+                                  size: 36,
+                                ),
+                              );
+                            },
                           );
                         },
+                        options: CarouselOptions(
+                          height: double.infinity,
+                          viewportFraction: 1.0,
+                          enableInfiniteScroll: product.images.length > 1,
+                          autoPlay: product.images.length > 1,
+                          autoPlayInterval: const Duration(seconds: 3),
+                        ),
                       ),
                     ),
                   ),
@@ -87,7 +99,6 @@ class ProductBottomSheet extends StatelessWidget {
                           ),
                         ),
                       ),
-                      
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -109,7 +120,6 @@ class ProductBottomSheet extends StatelessWidget {
                           color: Color(0xFF2563EB),
                         ),
                       ),
-                      
                     ],
                   ),
                   const SizedBox(height: 16),
