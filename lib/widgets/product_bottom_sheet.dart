@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/model/new_product_model.dart';
+import 'package:my_app/model/product_cart_model.dart';
+import 'package:my_app/provider/product_provider.dart';
+import 'package:provider/provider.dart';
 
-import '../model/product_model.dart';
+
 
 class ProductBottomSheet extends StatelessWidget {
-  final ProductModel product;
+  final NewProductModel product;
+  // final ProductModel product;
 
   const ProductBottomSheet({super.key, required this.product});
 
-  static Future<void> show(BuildContext context, ProductModel product) {
+  static Future<void> show(BuildContext context, NewProductModel product) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -18,6 +23,9 @@ class ProductBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final productProvider = context.watch<ProductProvider>();
+    final isInCart = productProvider.isInCartlist("${product.id}");
+
     return DraggableScrollableSheet(
       initialChildSize: 0.68,
       minChildSize: 0.45,
@@ -51,7 +59,7 @@ class ProductBottomSheet extends StatelessWidget {
                     child: AspectRatio(
                       aspectRatio: 1.2,
                       child: Image.network(
-                        product.imageUrl,
+                        product.images[0],
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
@@ -72,28 +80,19 @@ class ProductBottomSheet extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          product.name,
+                          product.title,
                           style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),
-                      Row(
-                        children: [
-                          const Icon(Icons.star, color: Colors.amber, size: 18),
-                          const SizedBox(width: 4),
-                          Text(
-                            product.rating.toStringAsFixed(1),
-                            style: const TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                        ],
-                      ),
+                      
                     ],
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    product.category,
+                    product.category.name,
                     style: TextStyle(
                       color: Colors.grey.shade600,
                       fontWeight: FontWeight.w600,
@@ -110,17 +109,7 @@ class ProductBottomSheet extends StatelessWidget {
                           color: Color(0xFF2563EB),
                         ),
                       ),
-                      if (product.oldPrice != null) ...[
-                        const SizedBox(width: 12),
-                        Text(
-                          '\$${product.oldPrice!.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                            decoration: TextDecoration.lineThrough,
-                          ),
-                        ),
-                      ],
+                      
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -145,16 +134,69 @@ class ProductBottomSheet extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: FilledButton(
-                          onPressed: () => Navigator.pop(context),
-                          style: FilledButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: const Text('Add to cart'),
-                        ),
+                        child: !isInCart
+                            ? FilledButton(
+                                onPressed: () {
+                                  productProvider.addProductInCart(
+                                    ProductCartModel(product: product),
+                                  );
+                                },
+                                style: FilledButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                child: const Text('Add to cart'),
+                              )
+                            : Builder(
+                                builder: (context) {
+                                  final cartProduct = productProvider
+                                      .getProduct("${product.id}");
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: Color(0xFF2563EB),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        IconButton(
+                                          onPressed: () {
+                                            productProvider.decreaseQuantity(
+                                              cartProduct,
+                                            );
+                                          },
+                                          icon: Icon(
+                                            Icons.remove_circle,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+
+                                        Text(
+                                          "${cartProduct.quantity}",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+
+                                        IconButton(
+                                          onPressed: () {
+                                            productProvider.addQuantity(
+                                              cartProduct,
+                                            );
+                                          },
+                                          icon: Icon(
+                                            Icons.add_circle,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
                       ),
                     ],
                   ),

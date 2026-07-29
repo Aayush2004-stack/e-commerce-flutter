@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/model/new_product_model.dart';
 import 'package:provider/provider.dart';
 
-import '../model/product_model.dart';
 import '../provider/product_provider.dart';
 import 'product_bottom_sheet.dart';
 
 class ProductCard extends StatelessWidget {
-  final ProductModel product;
+  final NewProductModel product;
+  // final ProductModel product;
 
   const ProductCard({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
     final productProvider = context.watch<ProductProvider>();
+    final isWishlisted = productProvider.isInWishlist("${product.id}");
 
     return InkWell(
       borderRadius: BorderRadius.circular(18),
@@ -41,7 +43,7 @@ class ProductCard extends StatelessWidget {
                     ),
                     child: SizedBox.expand(
                       child: Image.network(
-                        product.imageUrl,
+                        product.images[0],
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
@@ -65,10 +67,17 @@ class ProductCard extends StatelessWidget {
                       child: IconButton(
                         padding: EdgeInsets.zero,
                         iconSize: 18,
-                        onPressed: () {},
+                        onPressed: () {
+                          context.read<ProductProvider>().toggleWishlist(
+                            product,
+                          );
+                        },
                         icon: Icon(
-                          Icons.favorite_border,
-                          color: Colors.black87,
+                          isWishlisted ? Icons.favorite : Icons.favorite_border,
+
+                          color: isWishlisted
+                              ? Colors.red
+                              : const Color.fromARGB(255, 0, 0, 0),
                         ),
                       ),
                     ),
@@ -97,22 +106,9 @@ class ProductCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.star, color: Colors.amber, size: 14),
-                      const SizedBox(width: 4),
-                      Text(
-                        product.rating.toStringAsFixed(1),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
                   const SizedBox(height: 6),
                   Text(
-                    product.name,
+                    product.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -123,25 +119,22 @@ class ProductCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Text(
-                        '\$${product.price.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          color: Color(0xFF2563EB),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                      ),
-                      if (product.oldPrice != null) ...[
-                        const SizedBox(width: 6),
-                        Text(
-                          '\$${product.oldPrice!.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            decoration: TextDecoration.lineThrough,
-                            fontSize: 12,
+                      Expanded(
+                        child: FittedBox(
+                          alignment: Alignment.centerLeft,
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            '\$${product.price.toStringAsFixed(2)}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Color(0xFF2563EB),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
                           ),
                         ),
-                      ],
+                      ),
                     ],
                   ),
                 ],

@@ -1,125 +1,67 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
-import '../model/product_model.dart';
+import 'package:my_app/model/category_model.dart';
+import 'package:my_app/model/new_product_model.dart';
+import 'package:my_app/model/product_cart_model.dart';
+import 'package:my_app/services/product_service.dart';
 
 class ProductProvider extends ChangeNotifier {
-  final List<ProductModel> _products = [
-    ProductModel(
-      id: '1',
-      name: 'Essence Organic Hoodie',
-      imageUrl:
-          'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&q=80&w=400',
-      price: 120.00,
-      oldPrice: 165.00,
-      rating: 4.9,
-      category: 'Clothing',
-    ),
-    ProductModel(
-      id: '2',
-      name: 'Vanguard Chelsea Boots',
-      imageUrl:
-          'https://images.unsplash.com/photo-1638247025967-b4e38f787b76?auto=format&fit=crop&q=80&w=400',
-      price: 245.00,
-      oldPrice: 310.00,
-      rating: 4.8,
-      category: 'Accessories',
-    ),
-    ProductModel(
-      id: '3',
-      name: 'Archibald Wool Coat',
-      imageUrl:
-          'https://images.unsplash.com/photo-1539533377285-b82420a6e033?auto=format&fit=crop&q=80&w=400',
-      price: 380.00,
-      oldPrice: 450.00,
-      rating: 5.0,
-      category: 'Clothing',
-    ),
-    ProductModel(
-      id: '4',
-      name: 'Horizon Aviators',
-      imageUrl:
-          'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&q=80&w=400',
-      price: 185.00,
-      oldPrice: 215.00,
-      rating: 4.7,
-      category: 'Accessories',
-    ),
-    ProductModel(
-      id: '5',
-      name: 'Linen Weekend Shirt',
-      imageUrl:
-          'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&q=80&w=400',
-      price: 98.00,
-      oldPrice: 125.00,
-      rating: 4.6,
-      category: 'Clothing',
-    ),
-    ProductModel(
-      id: '6',
-      name: 'Canvas Crossbody Bag',
-      imageUrl:
-          'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=400',
-      price: 142.00,
-      oldPrice: 168.00,
-      rating: 4.8,
-      category: 'Accessories',
-    ),
-    ProductModel(
-      id: '7',
-      name: 'Everyday Sneakers',
-      imageUrl:
-          'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=400',
-      price: 160.00,
-      oldPrice: 190.00,
-      rating: 4.9,
-      category: 'Accessories',
-    ),
-    ProductModel(
-      id: '8',
-      name: 'Minimal Knit Sweater',
-      imageUrl:
-          'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&q=80&w=400',
-      price: 134.00,
-      oldPrice: 159.00,
-      rating: 4.7,
-      category: 'Clothing',
-    ),
-  ];
+  final ProductService _apiService = ProductService();
 
-  final List<ProductModel> _wishlist = [];
+  List<NewProductModel> _products = [];
 
-  List<ProductModel> get products => List.unmodifiable(_products);
-  List<ProductModel> get wishlistItems => List.unmodifiable(_wishlist);
+  bool isLoading = false;
 
-  void addProduct(ProductModel product) {
-    _products.add(product);
+  Future<void> getProducts() async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      _products = await _apiService.fetchProducts();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+
+    isLoading = false;
     notifyListeners();
   }
 
-  void addProductFromFields({
-    required String name,
-    required String imageUrl,
-    required double price,
-    double? oldPrice,
-    required double rating,
-    required String category,
-  }) {
-    addProduct(
-      ProductModel(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
-        name: name,
-        imageUrl: imageUrl,
-        price: price,
-        oldPrice: oldPrice,
-        rating: rating,
-        category: category,
-      ),
-    );
-  }
+  final List<NewProductModel> _wishlist = [];
+  final List<ProductCartModel> _cartList = [];
+
+  List<NewProductModel> get products => List.unmodifiable(_products);
+  List<NewProductModel> get wishlistItems => List.unmodifiable(_wishlist);
+  List<ProductCartModel> get cartItems => List.unmodifiable(_cartList);
+
+  // void addProduct(NewProductModel product) {
+  //   _products.add(product);
+  //   notifyListeners();
+  // }
+
+  // void addProductFromFields({
+  //   required String name,
+  //   required String imageUrl,
+  //   required double price,
+  //   double? oldPrice,
+  //   required double rating,
+  //   required String category,
+  // }) {
+  //   addProduct(
+  //     ProductModel(
+  //       id: DateTime.now().microsecondsSinceEpoch.toString(),
+  //       name: name,
+  //       imageUrl: imageUrl,
+  //       price: price,
+  //       oldPrice: oldPrice,
+  //       rating: rating,
+  //       category: category,
+  //     ),
+  //   );
+  // }
 
   void removeProduct(String id) {
-    _products.removeWhere((product) => product.id == id);
-    _wishlist.removeWhere((product) => product.id == id);
+    _products.removeWhere((product) => product.id.toString() == id);
+    _wishlist.removeWhere((product) => product.id.toString() == id);
     notifyListeners();
   }
 
@@ -129,13 +71,75 @@ class ProductProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // void toggleWishlist(ProductModel product) {
- 
-  // }
+  void toggleWishlist(NewProductModel product) {
+    final exist = _wishlist.any((item) => item.id == product.id);
 
-  // bool isInWishlist(String id) {
-    
-  // }
+    if (exist) {
+      _wishlist.removeWhere((item) => item.id == product.id);
+    } else {
+      _wishlist.add(product);
+    }
+    notifyListeners();
+  }
+
+  bool isInWishlist(String id) {
+    return _wishlist.any((product) => product.id.toString() == id);
+  }
+
+  void addProductInCart(ProductCartModel product) {
+    final exist = _cartList.any(
+      (item) => item.product.id == product.product.id,
+    );
+    if (!exist) {
+      _cartList.add(product);
+      notifyListeners();
+    }
+  }
+
+  bool isInCartlist(String id) {
+    return _cartList.any((cart) => cart.product.id.toString() == id);
+  }
+
+  void removeProductFromCart(ProductCartModel product) {
+    final exist = _cartList.any(
+      (item) => item.product.id == product.product.id,
+    );
+    if (exist) {
+      _cartList.remove(product);
+      notifyListeners();
+    }
+  }
+
+  void addQuantity(ProductCartModel product) {
+    product.quantity++;
+    notifyListeners();
+  }
+
+  void decreaseQuantity(ProductCartModel product) {
+    if (product.quantity > 1) {
+      product.quantity--;
+    } else {
+      removeProductFromCart(product);
+    }
+    notifyListeners();
+  }
+
+  ProductCartModel getProduct(String id) {
+    return cartItems.firstWhere(
+      (product) => product.product.id.toString() == id,
+    );
+  }
+
+  String getTotalProductByCategory(CategoryModel category) {
+    int numberOfProducts = 0;
+    for (final product in products) {
+      if (product.category.id == category.id) {
+        numberOfProducts++;
+      }
+    }
+
+    return "$numberOfProducts";
+  }
 
   // void clearWishlist() {
 
