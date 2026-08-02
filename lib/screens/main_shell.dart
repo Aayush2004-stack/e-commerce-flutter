@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/screens/cart_screen.dart';
 import 'package:my_app/screens/category_screen.dart';
+import 'package:my_app/screens/user_screen.dart';
 
-import 'empty_page.dart';
 import 'home_screen.dart';
 import 'wishlist_screen.dart';
 
@@ -21,7 +21,7 @@ class _MainShellState extends State<MainShell> {
     const CategoryScreen(),
     const CartScreen(),
     const WishlistScreen(),
-    const EmptyPage(title: 'Profile', icon: Icons.person_outline),
+    const UserScreen(),
   ];
 
   @override
@@ -82,7 +82,7 @@ class _MainShellState extends State<MainShell> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
-            label: 'Profile',
+            label: 'Users',
           ),
         ],
       ),
@@ -94,6 +94,6 @@ class _MainShellState extends State<MainShell> {
     'Categories',
     'Cart',
     'Wishlist',
-    'Profile',
+    'Users',
   ];
 }

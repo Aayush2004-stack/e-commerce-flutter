@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/model/create_product_model.dart';
 import 'package:my_app/provider/category_provider.dart';
-import 'package:my_app/provider/new_product_provider.dart';
 import 'package:my_app/provider/product_provider.dart';
 import 'package:provider/provider.dart';
 
