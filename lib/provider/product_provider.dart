@@ -9,9 +9,7 @@ import 'package:my_app/services/product_service.dart';
 class ProductProvider extends ChangeNotifier {
   final ProductService _apiService = ProductService();
 
-  
-
-  List<NewProductModel> _products = [];
+  final List<NewProductModel> _products = [];
 
   bool isLoading = false;
 
@@ -20,7 +18,9 @@ class ProductProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _products = await _apiService.fetchProducts();
+      final remoteProducts = await _apiService.fetchProducts();
+      _products.clear();
+      _products.addAll(remoteProducts);
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -41,13 +41,14 @@ class ProductProvider extends ChangeNotifier {
   //   notifyListeners();
   // }
 
-Future<CreateProductModel?> createProduct(CreateProductModel product) async {
+  Future<CreateProductModel?> createProduct(CreateProductModel product) async {
     isLoading = true;
     notifyListeners();
 
     try {
       final createdProduct = await _apiService.createProduct(product);
-      products.add(
+      _products.insert(
+        0,
         NewProductModel(
           id: createdProduct.id ?? DateTime.now().millisecondsSinceEpoch,
           title: createdProduct.title,
@@ -78,7 +79,6 @@ Future<CreateProductModel?> createProduct(CreateProductModel product) async {
       notifyListeners();
     }
   }
-
 
   // void addProductFromFields({
   //   required String name,
@@ -182,6 +182,13 @@ Future<CreateProductModel?> createProduct(CreateProductModel product) async {
 
     return "$numberOfProducts";
   }
+
+  double get totalPrice {
+  return _cartList.fold(
+    0,
+    (total, item) => total + (item.product.price * item.quantity),
+  );
+}
 
   // void clearWishlist() {
 
