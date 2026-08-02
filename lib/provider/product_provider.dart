@@ -1,12 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:my_app/model/category_model.dart';
+import 'package:my_app/model/create_product_model.dart';
 import 'package:my_app/model/new_product_model.dart';
 import 'package:my_app/model/product_cart_model.dart';
 import 'package:my_app/services/product_service.dart';
 
 class ProductProvider extends ChangeNotifier {
   final ProductService _apiService = ProductService();
+
+  
 
   List<NewProductModel> _products = [];
 
@@ -37,6 +40,45 @@ class ProductProvider extends ChangeNotifier {
   //   _products.add(product);
   //   notifyListeners();
   // }
+
+Future<CreateProductModel?> createProduct(CreateProductModel product) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final createdProduct = await _apiService.createProduct(product);
+      products.add(
+        NewProductModel(
+          id: createdProduct.id ?? DateTime.now().millisecondsSinceEpoch,
+          title: createdProduct.title,
+          slug:
+              createdProduct.slug ??
+              createdProduct.title.toLowerCase().replaceAll(' ', '-'),
+          price: createdProduct.price,
+          description: createdProduct.description,
+          category: CategoryModel(
+            id: createdProduct.categoryId,
+            name:
+                createdProduct.categoryName ??
+                'Category ${createdProduct.categoryId}',
+            image: createdProduct.categoryImage ?? '',
+            slug:
+                createdProduct.categorySlug ??
+                'category-${createdProduct.categoryId}',
+          ),
+          images: createdProduct.images,
+        ),
+      );
+      return createdProduct;
+    } catch (e) {
+      debugPrint(e.toString());
+      return null;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
 
   // void addProductFromFields({
   //   required String name,
