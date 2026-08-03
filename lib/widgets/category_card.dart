@@ -15,67 +15,79 @@ class CategoryCard extends StatelessWidget {
     final noOfProducts = productProvider.getTotalProductByCategory(category);
 
     return InkWell(
-      borderRadius: BorderRadius.circular(18),
-
+      borderRadius: BorderRadius.circular(20),
+      onTap: () {},
       child: Container(
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 193, 192, 192),
-          borderRadius: BorderRadius.circular(18),
+          color: const Color.fromARGB(255, 202, 202, 202),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 14,
-              offset: const Offset(0, 6),
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 12,
+              offset: const Offset(0, 5),
             ),
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          padding: const EdgeInsets.all(14),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Category Imagess
-              Container(
-                height: 70,
-                width: 70,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
                   child: Image.network(
                     category.image,
-                    fit: BoxFit.contain,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      return const Icon(
-                        Icons.image_not_supported_outlined,
-                        color: Colors.grey,
+                      return Container(
+                        color: Colors.grey.shade200,
+                        child: const Center(
+                          child: Icon(
+                            Icons.image_not_supported_outlined,
+                            size: 32,
+                            color: Colors.grey,
+                          ),
+                        ),
                       );
                     },
                   ),
                 ),
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 12),
 
               Text(
                 category.name,
-                textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontSize: 17,
+                  fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
               ),
 
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
 
-              Text(
-                "$noOfProducts items", // Placeholder
-                style: TextStyle(fontSize: 13),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text(
+                  "$noOfProducts Items",
+                  style: TextStyle(
+                    color: Colors.grey.shade700,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
             ],
           ),

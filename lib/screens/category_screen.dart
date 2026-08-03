@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/provider/category_provider.dart';
+import 'package:my_app/screens/add_category_screen.dart';
 import 'package:my_app/screens/empty_page.dart';
+
 import 'package:my_app/widgets/category_card.dart';
 import 'package:provider/provider.dart';
 
@@ -16,37 +18,53 @@ class _CategoryScreenState extends State<CategoryScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
+      if (!mounted) return;
       context.read<CategoryProvider>().getCategories();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<CategoryProvider>(
-      builder: (context, provider, child) {
-        final categoryItems = provider.categories;
+    return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'add_category',
+        onPressed: () {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const AddCategoryScreen()));
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Add Category'),
+      ),
+      body: Consumer<CategoryProvider>(
+        builder: (context, provider, child) {
+          final categoryItems = provider.categories;
 
-        if (categoryItems.isEmpty) {
-          return EmptyPage(title: 'Categories', icon: Icons.grid_view_outlined);
-        }
-        // return EmptyPage(title: "This is working", icon: Icons.abc);
+          if (categoryItems.isEmpty) {
+            return EmptyPage(
+              title: 'Categories',
+              icon: Icons.grid_view_outlined,
+            );
+          }
+          // return EmptyPage(title: "This is working", icon: Icons.abc);
 
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: GridView.builder(
-            itemCount: categoryItems.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.66,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: GridView.builder(
+              itemCount: categoryItems.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.66,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemBuilder: (context, index) {
+                return CategoryCard(category: categoryItems[index]);
+              },
             ),
-            itemBuilder: (context, index) {
-              return CategoryCard(category: categoryItems[index]);
-            },
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
