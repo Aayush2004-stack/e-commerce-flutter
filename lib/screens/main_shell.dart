@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/screens/cart_screen.dart';
 import 'package:my_app/screens/category_screen.dart';
+import 'package:my_app/screens/login_screen.dart';
 import 'package:my_app/screens/user_screen.dart';
 
 import 'home_screen.dart';
@@ -22,6 +23,7 @@ class _MainShellState extends State<MainShell> {
     const CartScreen(),
     const WishlistScreen(),
     const UserScreen(),
+    const LoginScreen(), 
   ];
 
   @override
@@ -84,6 +86,10 @@ class _MainShellState extends State<MainShell> {
             icon: Icon(Icons.person_outline),
             label: 'Users',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.login_outlined),
+            label: 'Login',
+          ),
         ],
       ),
     );
@@ -95,5 +101,6 @@ class _MainShellState extends State<MainShell> {
     'Cart',
     'Wishlist',
     'Users',
+    'Login',
   ];
 }

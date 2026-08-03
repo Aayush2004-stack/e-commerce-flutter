@@ -24,7 +24,7 @@ class CustomTextFormField extends StatelessWidget {
       decoration: InputDecoration(
         border: OutlineInputBorder(),
         hint: Text(hintText, style: TextStyle(fontSize: 16)),
-        prefixIcon: Icon(icon, size: 20),
+        suffixIcon: Icon(icon, size: 20),
       ),
     );
   }
