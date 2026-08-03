@@ -190,6 +190,66 @@ class ProductProvider extends ChangeNotifier {
   );
 }
 
+Future<bool> updateProduct(int id, {String? title, int? price}) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final existing = _products.firstWhere((product) => product.id == id);
+
+
+      final updates = <String, dynamic>{
+        'title': title ?? existing.title,
+        'price': price ?? existing.price,
+        'description': existing.description,
+        'categoryId': existing.category.id,
+        'images': existing.images,
+      };
+
+      final updated = await _apiService.updateProduct(id, updates);
+      final index = _products.indexWhere((product) => product.id == id);
+
+      if (index != -1) {
+        final existing = _products[index];
+        _products[index] = NewProductModel(
+          id: existing.id,
+          title: updated.title,
+          slug: updated.slug ?? existing.slug,
+          price: updated.price,
+          description: existing.description,
+          category: existing.category,
+          images: existing.images,
+        );
+      }
+      return true;
+    } catch (e) {
+      debugPrint(e.toString());
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> deleteProduct(int id) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final success = await _apiService.deleteProduct(id);
+      if (success) {
+        _products.removeWhere((product) => product.id == id);
+      }
+      return success;
+    } catch (e) {
+      debugPrint(e.toString());
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
   // void clearWishlist() {
 
   // }

@@ -17,6 +17,7 @@ class _ProductListViewState extends State<ProductListView> {
   void initState() {
     super.initState();
     Future.microtask(() {
+      if (!mounted) return;
       context.read<ProductProvider>().getProducts();
     });
   }
