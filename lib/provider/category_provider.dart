@@ -39,4 +39,44 @@ class CategoryProvider extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
   }
+
+  Future<bool> deleteCategory(int categoryId) async {
+    isLoading = true;
+    notifyListeners();
+    bool isDeleted = false;
+
+    try {
+      await _apiService.deleteCategory(categoryId);
+      isDeleted = true;
+      await getCategories(); // Refresh the categories after deletion
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+    return isDeleted;
+  }
+
+  Future<bool> updateCategory(
+    int categoryId,
+    CreateCategoryModel updatedCategory,
+  ) async {
+    isLoading = true;
+    notifyListeners();
+    bool isUpdated = false;
+
+    try {
+      await _apiService.updateCategory(categoryId, updatedCategory);
+      isUpdated = true;
+      await getCategories(); // Refresh the categories after updating
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+
+    return isUpdated;
+  }
 }

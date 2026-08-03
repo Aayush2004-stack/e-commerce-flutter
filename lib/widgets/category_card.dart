@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/model/category_model.dart';
 import 'package:my_app/provider/product_provider.dart';
+import 'package:my_app/widgets/category_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 class CategoryCard extends StatelessWidget {
@@ -16,7 +17,7 @@ class CategoryCard extends StatelessWidget {
 
     return InkWell(
       borderRadius: BorderRadius.circular(20),
-      onTap: () {},
+      onTap: () => CategoryBottomSheet.show(context, category),
       child: Container(
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 202, 202, 202),
