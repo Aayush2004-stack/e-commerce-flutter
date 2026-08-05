@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:my_app/model/create_category_model.dart';
 import 'package:my_app/provider/category_provider.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +20,22 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
   final _imageController = TextEditingController(
     text: 'https://images.unsplash.com/photo-1511556820780-d912e42b4980?w=600',
   );
+
+  File? _pickedImage;
+  bool _isUploadingImage = false;
+
+  Future<void> _pickImageFromGallery() async {
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+
+    if (picked != null) {
+      setState(() {
+        _pickedImage = File(picked.path);
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -40,10 +59,27 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final provider = context.read<CategoryProvider>();
+    var imageUrl = _imageController.text.trim();
+    if (_pickedImage != null) {
+      setState(() => _isUploadingImage = true);
+      final uploadedUrl = await provider.uploadImage(_pickedImage!);
+      if (!mounted) {
+        return;
+      }
+      setState(() => _isUploadingImage = false);
+
+      if (uploadedUrl == null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Failed to upload image')));
+        return;
+      }
+      imageUrl = uploadedUrl;
+    }
 
     final category = CreateCategoryModel(
       name: _nameController.text.trim(),
-      image: _imageController.text.trim(),
+      image: imageUrl.isEmpty ? _imageController.text.trim() : imageUrl,
     );
 
     await provider.createCategory(category);
@@ -164,10 +200,42 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                         return null;
                       },
                     ),
+                    const SizedBox(height: 18),
+                    Row(
+                      children: [
+                        if (_pickedImage != null) ...[
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.file(
+                              _pickedImage!,
+                              width: 56,
+                              height: 56,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                        ],
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: _pickImageFromGallery,
+                            icon: const Icon(Icons.photo_library_outlined),
+                            label: Text(
+                              _pickedImage == null
+                                  ? 'Pick image from gallery'
+                                  : 'Change picked image',
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
 
                     const SizedBox(height: 18),
-
-                    const SizedBox(height: 20),
 
                     SizedBox(
                       width: double.infinity,
@@ -190,7 +258,9 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                               )
                             : const Icon(Icons.add_box_outlined),
                         label: Text(
-                          provider.isLoading
+                          _isUploadingImage
+                              ? 'Uploading image...'
+                              : provider.isLoading
                               ? 'Creating...'
                               : 'Create Category',
                         ),

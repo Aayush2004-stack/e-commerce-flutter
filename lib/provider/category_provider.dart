@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/widgets.dart';
 import 'package:my_app/model/category_model.dart';
 import 'package:my_app/model/create_category_model.dart';
@@ -78,5 +80,14 @@ class CategoryProvider extends ChangeNotifier {
     }
 
     return isUpdated;
+  }
+
+  Future<String?> uploadImage(File file) async {
+    try {
+      return await _apiService.uploadImage(file);
+    } catch (e) {
+      debugPrint(e.toString());
+      return null;
+    }
   }
 }
