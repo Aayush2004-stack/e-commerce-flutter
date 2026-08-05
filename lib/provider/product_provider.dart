@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:my_app/model/category_model.dart';
@@ -247,6 +249,15 @@ Future<bool> updateProduct(int id, {String? title, int? price}) async {
     } finally {
       isLoading = false;
       notifyListeners();
+    }
+  }
+
+    Future<String?> uploadImage(File file) async {
+    try {
+      return await _apiService.uploadImage(file);
+    } catch (e) {
+      debugPrint(e.toString());
+      return null;
     }
   }
 
